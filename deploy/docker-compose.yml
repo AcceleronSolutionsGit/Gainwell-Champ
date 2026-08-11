@@ -1,0 +1,72 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# Gainwell CHAMP · Spot Recognition Tool — container deployment
+#
+# Default: single app container with SQLite persisted in the repo-root ./data
+# folder (the same file `npm run dev` uses).
+#
+#   export SESSION_SECRET=$(openssl rand -hex 32)
+#   docker compose -f deploy/docker-compose.yml up --build
+#   → http://localhost:8080  (OTP codes appear in `docker compose logs` and on
+#     the login page while EMAIL_PROVIDER=console)
+#
+# Optional PostgreSQL (closer to the AWS RDS production setup):
+#
+#   docker compose -f deploy/docker-compose.yml --profile postgres up --build
+#   …and uncomment the DATABASE_CLIENT / DATABASE_URL pair below.
+# ══════════════════════════════════════════════════════════════════════════════
+
+services:
+  app:
+    build:
+      context: ..                # repo root — the Dockerfile copies server/ + web/
+      dockerfile: deploy/Dockerfile
+    ports:
+      - '8080:8080'
+    environment:
+      NODE_ENV: production
+      PORT: 8080
+      # The app refuses to boot in production with the dev default secret.
+      SESSION_SECRET: ${SESSION_SECRET:?Set SESSION_SECRET first - generate one with openssl rand -hex 32}
+
+      # ── Database ── SQLite (default) vs PostgreSQL (profile) ────────────────
+      # Default: better-sqlite3 at /app/data/champ.sqlite3 (volume below).
+      # To use the postgres service instead, start with `--profile postgres`
+      # and uncomment BOTH lines (the switch is exactly this env pair):
+      # DATABASE_CLIENT: pg
+      # DATABASE_URL: postgres://champ:champ-local-password@postgres:5432/champ
+
+      # ── Integrations ── all demo-mode by default; see root README ──────────
+      # EMAIL_PROVIDER: console      # OTPs to logs + login page (default)
+      # WHATSAPP_PROVIDER: simulator # in-app phone engine (default)
+      # ENABLE_SIMULATOR: 'true'     # simulator is OFF in production unless forced
+      # DARWINBOX_ENABLED: 'false'   # seeded demo directory (default)
+    volumes:
+      # Repo-root ./data — persists the SQLite DB across container restarts.
+      - ../data:/app/data
+    restart: unless-stopped
+    # When running with the postgres profile, also uncomment:
+    # depends_on:
+    #   postgres:
+    #     condition: service_healthy
+
+  # ── Optional PostgreSQL (matches the production RDS engine) ────────────────
+  # Started only with `--profile postgres`. Change the password if the compose
+  # host is reachable by anyone else, and mirror it in DATABASE_URL above.
+  postgres:
+    profiles: ['postgres']
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: champ
+      POSTGRES_USER: champ
+      POSTGRES_PASSWORD: champ-local-password
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U champ -d champ']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  pgdata:

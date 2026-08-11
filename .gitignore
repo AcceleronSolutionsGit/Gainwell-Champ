@@ -1,0 +1,16 @@
+node_modules/
+dist/
+web/dist/
+data/
+*.sqlite3
+*.sqlite3-journal
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+server.pid
+test-whatsapp.js
+cloudflared.exe
+cookies.txt
+temp_*.json

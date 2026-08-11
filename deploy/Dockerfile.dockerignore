@@ -1,0 +1,17 @@
+# BuildKit picks this up automatically for builds using deploy/Dockerfile
+# (a "<Dockerfile>.dockerignore" beside the Dockerfile overrides any context
+# root .dockerignore). Keeps the build context small and the image clean.
+node_modules
+**/node_modules
+server/dist
+web/dist
+data
+*.sqlite3
+*.sqlite3-journal
+.env
+.env.*
+!.env.example
+*.log
+.git
+.DS_Store
+deploy

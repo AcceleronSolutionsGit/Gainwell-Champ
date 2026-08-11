@@ -1,0 +1,23 @@
+{
+  "name": "champ-spot-tool",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Gainwell CHAMP · Spot Recognition Tool — WhatsApp-first, money-free peer recognition with a live feed, moderation console, analytics and plant boards",
+  "workspaces": [
+    "server",
+    "web"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,web -c blue,green \"npm run dev -w server\" \"npm run dev -w web\"",
+    "build": "npm run build -w server && npm run build -w web",
+    "start": "npm run start -w server",
+    "typecheck": "npm run typecheck -w server && npm run typecheck -w web",
+    "seed:reset": "npm run seed:reset -w server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

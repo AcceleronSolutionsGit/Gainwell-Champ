@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "champ-web",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["vite", "web", "--port", "5174", "--strictPort"],
+      "port": 5174
+    }
+  ]
+}
