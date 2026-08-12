@@ -59,7 +59,7 @@ export default function Login(): React.ReactElement {
     <div className="login-wrap">
       <div className="login-card">
         <div className="login-brand">
-          <img src="/logo.png" alt="CHAMP" style={{ height: '54px', width: 'auto', objectFit: 'contain', marginBottom: '12px' }} />
+          <img src={`${import.meta.env.BASE_URL}logo.png`} alt="CHAMP" style={{ height: '54px', width: 'auto', objectFit: 'contain', marginBottom: '12px' }} />
           <h1 className="champ-brand-title">
             <span className="champ-text-animated">CHAMP</span>
           </h1>

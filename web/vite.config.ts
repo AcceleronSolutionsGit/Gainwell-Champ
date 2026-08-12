@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react'
 // application service on :8080. Production: `vite build` emits web/dist,
 // which the server serves as static files (see server/src/index.ts).
 export default defineConfig({
+  base: '/champ/',
   plugins: [react()],
   server: {
     port: 5173,

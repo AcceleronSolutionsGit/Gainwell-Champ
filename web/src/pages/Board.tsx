@@ -49,7 +49,7 @@ export default function Board(): React.ReactElement {
     <div className="board">
       <header className="board-header">
         <div className="board-brand" style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-          <img src="/logo.png" alt="Gainwell Logo" style={{ height: '36px', width: 'auto', objectFit: 'contain' }} />
+          <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Gainwell Logo" style={{ height: '36px', width: 'auto', objectFit: 'contain' }} />
           <div>
             <div><span className="board-brand-accent">CHAMP</span> Wall of Recognition</div>
             <span className="board-brand-sub">
