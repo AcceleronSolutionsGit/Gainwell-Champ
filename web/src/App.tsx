@@ -23,7 +23,7 @@ const AdminPage = lazy(() => import('./pages/admin/AdminPage'))
 
 export default function App(): React.ReactElement {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <AuthProvider>
         <Suspense fallback={<div className="page-splash">Loading…</div>}>
           <Routes>
