@@ -14,3 +14,4 @@ test-whatsapp.js
 cloudflared.exe
 cookies.txt
 temp_*.json
+ecosystem.config.js
