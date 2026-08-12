@@ -66,13 +66,18 @@ export function setUnauthorizedHandler(fn: (() => void) | null): void {
   onUnauthorized = fn
 }
 
+/** API base path — resolves to /champ/api in production (Vite sets BASE_URL to
+ *  the `base` in vite.config.ts) and to /api in development (base defaults to /). */
+const API_BASE = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api`
+
 async function request<T>(
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
   path: string,
   body?: unknown,
   params?: QueryParams,
 ): Promise<T> {
-  const res = await fetch(path + qs(params), {
+  const url = path.startsWith('/api/') ? API_BASE + path.slice('/api'.length) : path
+  const res = await fetch(url + qs(params), {
     method,
     credentials: 'include',
     headers: body !== undefined ? { 'Content-Type': 'application/json' } : undefined,
@@ -94,7 +99,7 @@ async function request<T>(
     const code = envelope?.code ?? `HTTP_${res.status}`
     const message = envelope?.message ?? `Request failed (${res.status})`
     // /api/auth/* handles its own 401s (bad OTP, not logged in yet).
-    if (res.status === 401 && !path.startsWith('/api/auth/') && onUnauthorized) onUnauthorized()
+    if (res.status === 401 && !url.includes('/api/auth/') && onUnauthorized) onUnauthorized()
     throw new ApiError(res.status, code, message)
   }
   return json as T
