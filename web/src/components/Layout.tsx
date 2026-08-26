@@ -14,6 +14,7 @@ export default function Layout(): React.ReactElement {
   const navigate = useNavigate()
   const [giveModalOpen, setGiveModalOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
 
   const onLogout = async () => {
@@ -48,8 +49,12 @@ export default function Layout(): React.ReactElement {
               <span className="brand-sub">Gainwell Spot Recognition</span>
             </div>
           </div>
+          
+          <button className="mobile-menu-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Toggle navigation">
+            {mobileMenuOpen ? '✕' : '☰'}
+          </button>
 
-          <nav className="nav-links" aria-label="Primary">
+          <nav className={`nav-links ${mobileMenuOpen ? 'mobile-open' : ''}`} aria-label="Primary">
             <NavLink to="/" end className={({ isActive }) => (isActive ? 'active' : '')}>
               📡 Live Feed
             </NavLink>
@@ -87,7 +92,8 @@ export default function Layout(): React.ReactElement {
                 boxShadow: '0 2px 8px rgba(5,150,105,.3)',
               }}
             >
-              🏆 Give Recognition
+              <span className="hide-mobile">🏆 Give Recognition</span>
+              <span className="show-mobile">🏆 Give</span>
             </Button>
 
             {user && (
