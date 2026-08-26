@@ -36,26 +36,27 @@ export interface DirectorySyncResult {
 
 const dbxEmployeeSchema = z
   .object({
-    'Employee Id': z.string().optional(),
-    'Full Name': z.string().optional(),
-    'Parent Function Name': z.string().nullish(),
-    'Top Department': z.string().nullish(),
-    'Location': z.string().nullish(),
-    'Personal Mobile Number': z.string().nullish(),
-    'Official Email Id': z.string().nullish(),
-    'Employee Type': z.string().nullish(),
-    'Job Level': z.string().nullish(),
-    'Direct Manager Employee Id': z.string().nullish(),
-    'Date Of Exit': z.string().nullish(),
-    'Updated On': z.string().nullish(),
+    employee_id: z.string().optional(),
+    full_name: z.string().optional(),
+    parent_function_name: z.string().nullish(), // legacy, kept just in case
+    function_name: z.string().nullish(),
+    top_department: z.string().nullish(),
+    location: z.string().nullish(), // legacy, kept just in case
+    office_location: z.string().nullish(),
+    personal_mobile_no: z.string().nullish(),
+    company_email_id: z.string().nullish(),
+    employee_type: z.string().nullish(),
+    job_level: z.string().nullish(),
+    direct_manager_employee_id: z.string().nullish(),
+    date_of_exit: z.string().nullish(),
+    updated_on: z.string().nullish(),
+    group_company_code: z.string().nullish(),
   })
   .passthrough()
 
 const dbxPageSchema = z
   .object({
-    response: z.object({
-      data: z.array(dbxEmployeeSchema).optional().default([]),
-    }).optional(),
+    employee_data: z.array(dbxEmployeeSchema).optional().default([]),
   })
   .passthrough()
 
@@ -66,7 +67,7 @@ type DbxEmployee = z.infer<typeof dbxEmployeeSchema>
 // ── helpers ──────────────────────────────────────────────────────────────────
 
 /** Normalize an HRMS mobile to E.164. Indian 10-digit numbers get +91. */
-function toE164(raw: string | null | undefined): string | null {
+export function toE164(raw: string | null | undefined): string | null {
   if (!raw) return null
   const cleaned = raw.replace(/[^\d+]/g, '')
   if (/^\+\d{8,15}$/.test(cleaned)) return cleaned
@@ -77,19 +78,19 @@ function toE164(raw: string | null | undefined): string | null {
 }
 
 function isDbxActive(rec: DbxEmployee): boolean {
-  const dateOfExit = (rec['Date Of Exit'] ?? '').trim()
+  const dateOfExit = (rec.date_of_exit ?? '').trim()
   return dateOfExit === '' // Empty means active, filled means exited.
 }
 
 /** Map a DarwinBox record onto our employees columns (sync-owned fields only). */
 function mapFields(rec: DbxEmployee, mobile: string): Partial<Employee> {
-  const grade = (rec['Job Level'] ?? '').trim().toUpperCase()
-  const rawName = (rec['Full Name'] ?? 'Employee').trim()
-  const rawDept = (rec['Parent Function Name'] ?? 'Unassigned').trim()
-  const rawSubTeam = (rec['Top Department'] ?? '').trim()
-  const rawSite = (rec['Location'] ?? 'Unassigned').trim()
-  const rawEmail = (rec['Official Email Id'] ?? '').trim().toLowerCase()
-  const hrmsUpdatedOn = (rec['Updated On'] ?? '').trim()
+  const grade = (rec.job_level ?? '').trim().toUpperCase()
+  const rawName = (rec.full_name ?? 'Employee').trim()
+  const rawDept = (rec.function_name ?? rec.parent_function_name ?? 'Unassigned').trim()
+  const rawSubTeam = (rec.top_department ?? '').trim()
+  const rawSite = (rec.office_location ?? rec.location ?? 'Unassigned').trim()
+  const rawEmail = (rec.company_email_id ?? '').trim().toLowerCase()
+  const hrmsUpdatedOn = (rec.updated_on ?? '').trim()
 
   return {
     name: rawName || 'Employee',
@@ -100,7 +101,7 @@ function mapFields(rec: DbxEmployee, mobile: string): Partial<Employee> {
     mobile,
     email: rawEmail || null,
     employment_type:
-      (rec['Employee Type'] ?? '').trim().toLowerCase() === 'contractual' ? 'contractual' : 'permanent',
+      (rec.employee_type ?? '').trim().toLowerCase() === 'contractual' ? 'contractual' : 'permanent',
     level_grade: /^L[1-5]$/.test(grade) ? grade : 'L2',
     active: isDbxActive(rec) ? 1 : 0,
     hrms_updated_on: hrmsUpdatedOn || null,
@@ -121,13 +122,12 @@ async function authHeaders(): Promise<Record<string, string>> {
 
 /** Fetch the complete employee dataset using reportdatav2. */
 async function fetchAllEmployees(headers: Record<string, string>): Promise<DbxEmployee[]> {
-  const { baseUrl, reportId, apiKey } = config.darwinbox
+  const { baseUrl, datasetKey, apiKey } = config.darwinbox
   // ← PRODUCTION HTTP call site.
-  const url = new URL(`${baseUrl}/reportsbuilderapi/reportdatav2`)
+  const url = new URL(`${baseUrl}/masterapi/employee`)
   const body = {
     api_key: apiKey,
-    report_id: reportId,
-    get_latest_report: '1',
+    datasetKey: datasetKey,
   }
   const res = await fetch(url, {
     method: 'POST',
@@ -139,7 +139,12 @@ async function fetchAllEmployees(headers: Record<string, string>): Promise<DbxEm
   }
   const rawJson = await res.json()
   const parsed = dbxPageSchema.parse(rawJson)
-  return parsed.response?.data ?? []
+  
+  const allEmployees = parsed.employee_data ?? []
+  return allEmployees.filter(emp => {
+    const code = (emp.group_company_code ?? '').trim().toUpperCase()
+    return code === '3000' || code === 'GEPL'
+  })
 }
 
 // ── the sync itself ──────────────────────────────────────────────────────────
@@ -163,14 +168,14 @@ async function liveSync(db: Knex): Promise<DirectorySyncResult> {
   const managerCodeByCode = new Map<string, string>() // for the second pass
 
   for (const rec of fetched) {
-    const rawCode = (rec['Employee Id'] ?? '').trim()
+    const rawCode = (rec.employee_id ?? '').trim()
     if (!rawCode) {
       skipped += 1
       continue
     }
     const code = rawCode
     if (seenCodes.has(code)) continue // dataset duplicate — first record wins
-    const mobile = toE164(rec['Personal Mobile Number'])
+    const mobile = toE164(rec.personal_mobile_no)
     if (!mobile) {
       // The mobile is the WhatsApp identity (FR-2) and a NOT NULL UNIQUE
       // column — records without a usable number cannot be enrolled.
@@ -178,7 +183,7 @@ async function liveSync(db: Knex): Promise<DirectorySyncResult> {
       continue
     }
     seenCodes.add(code)
-    const managerCode = (rec['Direct Manager Employee Id'] ?? '').trim()
+    const managerCode = (rec.direct_manager_employee_id ?? '').trim()
     if (managerCode) managerCodeByCode.set(code, managerCode)
 
     const fields = mapFields(rec, mobile)
@@ -186,7 +191,7 @@ async function liveSync(db: Knex): Promise<DirectorySyncResult> {
       const current = existingByCode.get(code)
       if (current) {
         // Compare "Updated On" date from Darwinbox with our stored value to skip redundant writes
-        const newUpdatedOn = (rec['Updated On'] ?? '').trim()
+        const newUpdatedOn = (rec.updated_on ?? '').trim()
         const oldUpdatedOn = (current.hrms_updated_on ?? '').trim()
 
         if (newUpdatedOn && newUpdatedOn === oldUpdatedOn) {
@@ -232,9 +237,19 @@ async function liveSync(db: Knex): Promise<DirectorySyncResult> {
 
   // Deactivate actives that vanished from the HRMS extract (FR-4: keep
   // history — recognitions given/received remain on the feed and in analytics).
+  // Note: Admin & committee emails are protected so dev/admin test accounts remain active.
+  const protectedEmails = new Set(
+    [...config.auth.adminEmails, ...config.auth.committeeEmails].map((e) => e.trim().toLowerCase()),
+  )
   let deactivated = 0
   for (const e of existing) {
     if (e.active && !seenCodes.has(e.employee_code)) {
+      const emp = (await db('employees').where({ id: e.id }).select('email').first()) as
+        | { email: string | null }
+        | undefined
+      if (emp?.email && protectedEmails.has(emp.email.trim().toLowerCase())) {
+        continue
+      }
       await db('employees').where({ id: e.id }).update({ active: 0, updated_at: now })
       deactivated += 1
     }

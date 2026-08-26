@@ -97,7 +97,7 @@ function buildConfig() {
       basicAuthUser: env.DARWINBOX_BASIC_AUTH_USER ?? '',
       basicAuthPass: env.DARWINBOX_BASIC_AUTH_PASS ?? '',
       apiKey: env.DARWINBOX_API_KEY ?? '',
-      reportId: env.DARWINBOX_REPORT_ID ?? '',
+      datasetKey: env.DARWINBOX_DATASET_KEY ?? '',
     },
     simulatorEnabled: bool(env.ENABLE_SIMULATOR, !isProd),
     boardToken: env.BOARD_TOKEN || null,
