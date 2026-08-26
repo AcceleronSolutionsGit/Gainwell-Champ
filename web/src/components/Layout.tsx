@@ -66,7 +66,7 @@ export default function Layout(): React.ReactElement {
                 ⚙️ Console
               </NavLink>
             )}
-            <a href="/board" target="_blank" rel="noreferrer" className="kiosk-link">
+            <a href={`${import.meta.env.BASE_URL}board`} target="_blank" rel="noreferrer" className="kiosk-link">
               📺 Kiosk Board ↗
             </a>
             {import.meta.env.DEV && (
