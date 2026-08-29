@@ -1,7 +1,7 @@
 {
   "welcome": "👋 Welcome to Gainwell CHAMP — instant recognition for great work. What would you like to do?",
   "btn_give": "Give recognition",
-  "btn_count": "My count",
+  "btn_count": "Recognitions given/received",
   "btn_lang": "Language",
   "not_registered": "Sorry, this number isn't registered for CHAMP. Please contact HR / Plant HR to get enrolled.",
   "ask_recipient": "Who would you like to recognise? Reply with their name.",
@@ -24,5 +24,6 @@
   "help_fallback": "Say “hi” for the menu, or “cancel” to start over.",
   "list_button": "Choose",
   "section_people": "Matches",
-  "section_behaviours": "CHAMP behaviours"
+  "section_behaviours": "CHAMP behaviours",
+  "dpdp_consent": "Under the DPDP Act, we need your consent to process your name and recognition data. By continuing to use this bot, you agree to this."
 }

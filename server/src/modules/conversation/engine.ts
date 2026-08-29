@@ -16,6 +16,7 @@ import { Behaviour, BotReply, CreateRecognitionResult, Employee, InboundMessage 
 import { AppSettings, getSettings } from '../settings'
 import { createRecognition } from '../rules/recognitionService'
 import { notifyRecipient } from '../notifications'
+import { toE164 } from '../sync/darwinbox'
 import { Lang, normalizeLang, t } from './i18n'
 
 // ── persisted state ───────────────────────────────────────────────────────────
@@ -52,7 +53,7 @@ const COUNT_RE = /^(my ?count|count)$/
 
 export async function processInboundMessage(msg: InboundMessage): Promise<BotReply[]> {
   const db = getDb()
-  const mobile = msg.mobile
+  const mobile = toE164(msg.mobile) ?? msg.mobile
   const giver = (await db('employees').where({ mobile }).first()) as Employee | undefined
 
   if (!giver || !giver.active) {
@@ -69,42 +70,50 @@ export async function processInboundMessage(msg: InboundMessage): Promise<BotRep
   const rawText = msg.text?.trim()
   const command = rawText ? normalizeCommand(rawText) : ''
 
+  // ── handle consent ───────────────────────────────────────────────────────────
+  let consentReply: BotReply | null = null
+  if (!giver.consent_recorded && command && !CANCEL_RE.test(command)) {
+    await db('employees').where({ id: giver.id }).update({ consent_recorded: 1, updated_at: nowIso() })
+    consentReply = text(t(lang, 'dpdp_consent' as any))
+  }
+  const withConsent = (replies: BotReply[]): BotReply[] => consentReply ? [consentReply, ...replies] : replies
+
   // ── global text commands (work from any step) ──────────────────────────────
   if (command && CANCEL_RE.test(command)) {
     await clearState(mobile)
     return [text(t(lang, 'cancelled'))]
   }
   if (command && GREETING_RE.test(command)) {
-    return showMenu(mobile, lang)
+    return withConsent(await showMenu(mobile, lang))
   }
   if (command && COUNT_RE.test(command)) {
-    return countSummary(giver, lang) // FR-16 shortcut; leaves any flow resumable
+    return withConsent(await countSummary(giver, lang)) // FR-16 shortcut; leaves any flow resumable
   }
 
   // ── interactive taps (old messages stay tappable — validate, never crash) ──
   if (msg.interactiveReplyId) {
-    return handleTap(mobile, giver, lang, state, msg.interactiveReplyId)
+    return withConsent(await handleTap(mobile, giver, lang, state, msg.interactiveReplyId))
   }
 
   // ── free text, routed by step ───────────────────────────────────────────────
   if (!rawText) {
     // Media/sticker/location etc. — we only speak text and taps.
-    return [text(t(lang, 'help_fallback'))]
+    return withConsent([text(t(lang, 'help_fallback'))])
   }
   if (!state) {
     // Any text while idle ⇒ welcome menu (FR-5).
-    return showMenu(mobile, lang)
+    return withConsent(await showMenu(mobile, lang))
   }
   switch (state.step) {
     case 'menu':
-      return showMenu(mobile, lang)
+      return withConsent(await showMenu(mobile, lang))
     case 'recipient_query':
-      return searchRecipients(mobile, giver, lang, rawText)
+      return withConsent(await searchRecipients(mobile, giver, lang, rawText))
     case 'behaviour':
       // Gentle nudge: repeat the behaviour list for the chosen recipient.
-      return resendBehaviourList(mobile, lang, state)
+      return withConsent(await resendBehaviourList(mobile, lang, state))
     case 'reason':
-      return submitReason(mobile, giver, lang, state, rawText)
+      return withConsent(await submitReason(mobile, giver, lang, state, rawText))
   }
 }
 
@@ -149,8 +158,7 @@ async function setLanguage(
     return [text(t(lang, 'help_fallback'))]
   }
   await getDb()('employees').where({ id: giver.id }).update({ language: code, updated_at: nowIso() })
-  await clearState(mobile) // copy says "say hi to continue" — start clean
-  return [text(t(code, 'lang_set'))] // confirm in the NEW language
+  return showMenu(mobile, code as Lang)
 }
 
 async function handleRecipientPick(

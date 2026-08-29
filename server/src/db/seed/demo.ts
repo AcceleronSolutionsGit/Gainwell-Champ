@@ -224,12 +224,13 @@ async function generate(db: Knex): Promise<Record<string, number>> {
     level: string
     managerId: number | null
     email: string | null
+    mobile?: string
     employmentType?: 'permanent' | 'contractual'
     language?: 'en' | 'hi' | 'bn'
     active?: number
   }): Promise<SeededEmployee> => {
     seq += 1
-    const mobile = `+91${9810000000 + seq}`
+    const mobile = e.mobile ?? `+91${9810000000 + seq}`
     const contractual = e.employmentType === 'contractual'
     const id = await insertReturningId(db, 'employees', {
       employee_code: `GEPL${1000 + seq}`,
@@ -275,7 +276,7 @@ async function generate(db: Knex): Promise<Record<string, number>> {
   })
   await addEmployee({
     name: 'Sabarnik Lahiri', fn: 'Management', subTeam: 'Executive', shift: 'General', site: 'Kolkata',
-    level: 'L5', managerId: null, email: 'sabarnik.lahiri@acceleronsolutions.io', language: 'en',
+    level: 'L5', managerId: null, email: 'sabarnik.lahiri@acceleronsolutions.io', mobile: '+919875445704', language: 'en',
   })
 
   for (const team of TEAMS) {
