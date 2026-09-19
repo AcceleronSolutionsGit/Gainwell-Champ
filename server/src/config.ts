@@ -27,6 +27,13 @@ function num(v: string | undefined, dflt: number): number {
   return Number.isFinite(n) ? n : dflt
 }
 
+/** Trimmed string env var. Unlike `??`, an empty or whitespace-only value
+ *  falls back to the default instead of silently becoming ''. */
+function str(v: string | undefined, dflt: string): string {
+  const t = (v ?? '').trim()
+  return t === '' ? dflt : t
+}
+
 function list(v: string | undefined, dflt: string[]): string[] {
   if (!v) return dflt
   return v
@@ -37,7 +44,7 @@ function list(v: string | undefined, dflt: string[]): string[] {
 
 function buildConfig() {
   const env = process.env
-  const nodeEnv = env.NODE_ENV ?? 'development'
+  const nodeEnv = str(env.NODE_ENV, 'development')
   const isProd = nodeEnv === 'production'
   return {
     nodeEnv,
@@ -45,16 +52,16 @@ function buildConfig() {
     projectRoot: PROJECT_ROOT,
     port: num(env.PORT, 8080),
     /** All calendar logic (monthly cap reset, digests, display) uses IST. */
-    timezone: env.DISPLAY_TIMEZONE ?? 'Asia/Kolkata',
+    timezone: str(env.DISPLAY_TIMEZONE, 'Asia/Kolkata'),
     session: {
-      secret: env.SESSION_SECRET ?? 'dev-insecure-secret-change-me',
+      secret: str(env.SESSION_SECRET, 'dev-insecure-secret-change-me'),
       idleMinutes: num(env.SESSION_IDLE_MINUTES, 60),
       absoluteHours: num(env.SESSION_ABSOLUTE_HOURS, 12),
     },
     db: {
-      client: (env.DATABASE_CLIENT ?? 'better-sqlite3') as 'better-sqlite3' | 'pg' | 'mysql2' | 'mysql',
-      sqliteFile: path.resolve(PROJECT_ROOT, env.SQLITE_FILE ?? './data/champ.sqlite3'),
-      databaseUrl: env.DATABASE_URL ?? '',
+      client: (str(env.DATABASE_CLIENT, 'better-sqlite3')) as 'better-sqlite3' | 'pg' | 'mysql2' | 'mysql',
+      sqliteFile: path.resolve(PROJECT_ROOT, str(env.SQLITE_FILE, './data/champ.sqlite3')),
+      databaseUrl: str(env.DATABASE_URL, ''),
     },
     auth: {
       allowedEmailDomains: list(env.ALLOWED_EMAIL_DOMAIN, ['gainwellengineering.com', 'acceleronsolutions.io']),
@@ -64,47 +71,47 @@ function buildConfig() {
       otpMaxAttempts: num(env.OTP_MAX_ATTEMPTS, 5),
     },
     email: {
-      provider: (env.EMAIL_PROVIDER ?? 'console') as 'console' | 'smtp' | 'ses',
-      from: env.EMAIL_FROM ?? 'no-reply@gainwellengineering.com',
+      provider: (str(env.EMAIL_PROVIDER, 'console')) as 'console' | 'smtp' | 'ses',
+      from: str(env.EMAIL_FROM, 'no-reply@gainwellengineering.com'),
       smtp: {
-        host: env.SMTP_HOST ?? '',
+        host: str(env.SMTP_HOST, ''),
         port: num(env.SMTP_PORT, 587),
-        user: env.SMTP_USER ?? '',
-        pass: env.SMTP_PASS ?? '',
+        user: str(env.SMTP_USER, ''),
+        pass: str(env.SMTP_PASS, ''),
         secure: bool(env.SMTP_SECURE, false),
       },
     },
     whatsapp: {
-      provider: (env.WHATSAPP_PROVIDER ?? 'simulator') as 'simulator' | 'meta' | 'gallabox',
+      provider: (str(env.WHATSAPP_PROVIDER, 'simulator')) as 'simulator' | 'meta' | 'gallabox',
       meta: {
-        apiVersion: env.META_WA_API_VERSION ?? 'v20.0',
-        phoneNumberId: env.META_WA_PHONE_NUMBER_ID ?? '',
-        accessToken: env.META_WA_TOKEN ?? '',
-        appSecret: env.META_WA_APP_SECRET ?? '',
-        verifyToken: env.META_WA_VERIFY_TOKEN ?? 'champ-verify-token',
+        apiVersion: str(env.META_WA_API_VERSION, 'v20.0'),
+        phoneNumberId: str(env.META_WA_PHONE_NUMBER_ID, ''),
+        accessToken: str(env.META_WA_TOKEN, ''),
+        appSecret: str(env.META_WA_APP_SECRET, ''),
+        verifyToken: str(env.META_WA_VERIFY_TOKEN, 'champ-verify-token'),
       },
       gallabox: {
-        baseUrl: env.GALLABOX_BASE_URL ?? 'https://server.gallabox.com',
-        apiKey: env.GALLABOX_API_KEY ?? '',
-        apiSecret: env.GALLABOX_API_SECRET ?? '',
-        channelId: env.GALLABOX_CHANNEL_ID ?? '',
-        webhookSecret: env.GALLABOX_WEBHOOK_SECRET ?? '',
+        baseUrl: str(env.GALLABOX_BASE_URL, 'https://server.gallabox.com'),
+        apiKey: str(env.GALLABOX_API_KEY, ''),
+        apiSecret: str(env.GALLABOX_API_SECRET, ''),
+        channelId: str(env.GALLABOX_CHANNEL_ID, ''),
+        webhookSecret: str(env.GALLABOX_WEBHOOK_SECRET, ''),
       },
     },
     darwinbox: {
       enabled: bool(env.DARWINBOX_ENABLED, false),
-      baseUrl: env.DARWINBOX_BASE_URL ?? '',
-      basicAuthUser: env.DARWINBOX_BASIC_AUTH_USER ?? '',
-      basicAuthPass: env.DARWINBOX_BASIC_AUTH_PASS ?? '',
-      apiKey: env.DARWINBOX_API_KEY ?? '',
-      datasetKey: env.DARWINBOX_DATASET_KEY ?? '',
+      baseUrl: str(env.DARWINBOX_BASE_URL, ''),
+      basicAuthUser: str(env.DARWINBOX_BASIC_AUTH_USER, ''),
+      basicAuthPass: str(env.DARWINBOX_BASIC_AUTH_PASS, ''),
+      apiKey: str(env.DARWINBOX_API_KEY, ''),
+      datasetKey: str(env.DARWINBOX_DATASET_KEY, ''),
     },
     simulatorEnabled: bool(env.ENABLE_SIMULATOR, !isProd),
     boardToken: env.BOARD_TOKEN || null,
     cron: {
-      darwinboxSync: env.SYNC_CRON ?? '30 2 * * *',
-      flagScan: env.FLAGSCAN_CRON ?? '15 3 * * *',
-      weeklyDigest: env.DIGEST_CRON ?? '0 9 * * 1',
+      darwinboxSync: str(env.SYNC_CRON, '30 2 * * *'),
+      flagScan: str(env.FLAGSCAN_CRON, '15 3 * * *'),
+      weeklyDigest: str(env.DIGEST_CRON, '0 9 * * 1'),
     },
   }
 }
