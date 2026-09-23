@@ -21,6 +21,10 @@ export interface AppSettings {
   /** FR-20 — weekly digest. */
   weeklyDigestEnabled: boolean
   digestAudience: 'all' | 'leadership'
+  /** Kiosk board — max number of recognition cards to display. */
+  boardDisplayLimit: number
+  /** Kiosk board — only show recognitions from this IST date onward (YYYY-MM-DD), or null for no filter. */
+  boardDateFrom: string | null
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -49,6 +53,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   flagLoopMinTotal: 3,
   weeklyDigestEnabled: true,
   digestAudience: 'all',
+  boardDisplayLimit: 20,
+  boardDateFrom: null,
 }
 
 let cache: AppSettings | null = null

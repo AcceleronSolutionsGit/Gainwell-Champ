@@ -192,6 +192,47 @@ export default function SettingsTab(): React.ReactElement {
 
           <div style={{ height: 16 }} />
 
+          <Card title="Kiosk Board Display" sub="Control what the plant TV / kiosk board shows">
+            <div className="form-grid">
+              <Field label="Max cards to display (1–50)">
+                <input
+                  className="input"
+                  type="number"
+                  min={1}
+                  max={50}
+                  required
+                  value={draft.boardDisplayLimit}
+                  onChange={(e) => set('boardDisplayLimit', Number(e.target.value))}
+                />
+              </Field>
+              <Field label="Show recognitions from (IST date)">
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <input
+                    className="input"
+                    type="date"
+                    value={draft.boardDateFrom ?? ''}
+                    onChange={(e) => set('boardDateFrom', e.target.value || null)}
+                    style={{ flex: 1 }}
+                  />
+                  {draft.boardDateFrom && (
+                    <Button
+                      small
+                      variant="ghost"
+                      onClick={() => set('boardDateFrom', null)}
+                    >
+                      Clear
+                    </Button>
+                  )}
+                </div>
+              </Field>
+            </div>
+            <div style={{ marginTop: 8, fontSize: 12, color: 'var(--muted)' }}>
+              When set, the kiosk board will only display recognitions from this date onward, limited to the max card count.
+            </div>
+          </Card>
+
+          <div style={{ height: 16 }} />
+
           <Card title="Integrations & Directory Sync" sub="Gallabox WhatsApp API & DarwinBox HRIS sync status">
             <div className="form-grid" style={{ marginBottom: 12 }}>
               <div>

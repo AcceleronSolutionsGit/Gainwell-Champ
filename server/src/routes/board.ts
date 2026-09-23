@@ -14,6 +14,7 @@ import { formatIst, istDayEndIso, istDayStartIso } from '../db/time'
 import { apiError } from '../middleware/errorHandler'
 import { asyncHandler } from '../middleware/requireAuth'
 import { apiLimiter } from '../middleware/rateLimits'
+import { getSettings } from '../modules/settings'
 import { FEED_SELECT, feedJoin, FeedRow, toFeedItem } from './feed'
 
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -61,13 +62,24 @@ router.get(
   '/feed',
   asyncHandler(async (req, res) => {
     const q = parse(boardFeedQuery, cleanQuery(req.query as Record<string, unknown>))
+    const settings = await getSettings()
+
+    // Apply admin-configured limits: actual limit is the lesser of client request and admin cap
+    const effectiveLimit = Math.min(q.limit, settings.boardDisplayLimit)
+
     const query = feedJoin(getDb()).whereIn('rec.status', ['active', 'flagged'])
     siteFilter(query, q.site)
+
+    // Apply admin-configured date filter: only show recognitions from this date onward
+    if (settings.boardDateFrom) {
+      query.andWhere('rec.created_at', '>=', istDayStartIso(settings.boardDateFrom))
+    }
+
     const rows = (await query
       .select(FEED_SELECT)
       .orderBy('rec.created_at', 'desc')
       .orderBy('rec.id', 'desc')
-      .limit(q.limit)) as FeedRow[]
+      .limit(effectiveLimit)) as FeedRow[]
     res.json({ items: rows.map((r) => toFeedItem(r)) })
   }),
 )

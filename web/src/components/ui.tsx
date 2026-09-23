@@ -214,17 +214,66 @@ export function Pager({
 }): React.ReactElement | null {
   const pages = Math.max(1, Math.ceil(total / pageSize))
   if (pages <= 1) return null
+
+  const rangeStart = (page - 1) * pageSize + 1
+  const rangeEnd = Math.min(page * pageSize, total)
+
+  // Build page numbers: first, last, current ± 1, with ellipsis gaps
+  const pageNumbers: (number | '...')[] = []
+  const addPage = (p: number) => {
+    if (p >= 1 && p <= pages && !pageNumbers.includes(p)) pageNumbers.push(p)
+  }
+  addPage(1)
+  if (page - 1 > 2) pageNumbers.push('...')
+  addPage(page - 1)
+  addPage(page)
+  addPage(page + 1)
+  if (page + 2 < pages) pageNumbers.push('...')
+  addPage(pages)
+
   return (
     <div className="pager">
-      <span>
-        Page {page} of {pages} · {total.toLocaleString('en-IN')} total
+      <span className="pager-summary">
+        Showing {rangeStart.toLocaleString('en-IN')}–{rangeEnd.toLocaleString('en-IN')} of{' '}
+        {total.toLocaleString('en-IN')}
       </span>
-      <Button small disabled={page <= 1} onClick={() => onPage(page - 1)}>
-        ← Prev
-      </Button>
-      <Button small disabled={page >= pages} onClick={() => onPage(page + 1)}>
-        Next →
-      </Button>
+      <div className="pager-buttons">
+        <button
+          type="button"
+          className="pager-btn"
+          disabled={page <= 1}
+          onClick={() => onPage(page - 1)}
+          aria-label="Previous page"
+        >
+          ‹
+        </button>
+        {pageNumbers.map((p, i) =>
+          p === '...' ? (
+            <span key={`ellipsis-${i}`} className="pager-ellipsis">
+              …
+            </span>
+          ) : (
+            <button
+              type="button"
+              key={p}
+              className={`pager-btn${p === page ? ' pager-btn-active' : ''}`}
+              onClick={() => onPage(p)}
+              aria-current={p === page ? 'page' : undefined}
+            >
+              {p}
+            </button>
+          ),
+        )}
+        <button
+          type="button"
+          className="pager-btn"
+          disabled={page >= pages}
+          onClick={() => onPage(page + 1)}
+          aria-label="Next page"
+        >
+          ›
+        </button>
+      </div>
     </div>
   )
 }

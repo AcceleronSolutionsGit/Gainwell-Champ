@@ -230,6 +230,8 @@ export interface AppSettings {
   flagLoopMinTotal: number
   weeklyDigestEnabled: boolean
   digestAudience: 'all' | 'leadership'
+  boardDisplayLimit: number
+  boardDateFrom: string | null
 }
 
 export interface AuditEntry {

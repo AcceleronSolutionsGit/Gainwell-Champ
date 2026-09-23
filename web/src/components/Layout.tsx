@@ -43,7 +43,7 @@ export default function Layout(): React.ReactElement {
       <header className="topnav">
         <div className="topnav-inner">
           <div className="brand" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Gainwell" style={{ height: '38px', width: 'auto', objectFit: 'contain' }} />
+            <img src={`${import.meta.env.BASE_URL}logo1.png`} alt="Gainwell" style={{ height: '38px', width: 'auto', objectFit: 'contain' }} />
             <div className="brand-text">
               <span className="brand-title">CHAMP</span>
               <span className="brand-sub">Gainwell Spot Recognition</span>

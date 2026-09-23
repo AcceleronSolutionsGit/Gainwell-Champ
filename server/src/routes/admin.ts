@@ -300,6 +300,8 @@ const settingsBody = z
     flagLoopMinTotal: z.number().int().min(2).max(50),
     weeklyDigestEnabled: z.boolean(),
     digestAudience: z.enum(['all', 'leadership']),
+    boardDisplayLimit: z.number().int().min(1).max(50),
+    boardDateFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be YYYY-MM-DD').nullable(),
   })
   .partial()
   .strict()
