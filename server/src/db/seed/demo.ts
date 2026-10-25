@@ -549,8 +549,10 @@ export async function seedIfEmpty(db: Knex): Promise<void> {
 
 /** Wipe and reseed (npm run seed:reset). */
 export async function resetAndSeed(db: Knex): Promise<void> {
-  for (const table of ['audit_log', 'settings', 'admin_users', 'otp_codes', 'conversation_state', 'flags', 'recognitions', 'behaviours', 'employees']) {
-    await db(table).del()
+  for (const table of ['audit_log', 'user_credentials', 'settings', 'admin_users', 'otp_codes', 'conversation_state', 'flags', 'recognitions', 'behaviours', 'employees']) {
+    if (await db.schema.hasTable(table)) {
+      await db(table).del()
+    }
   }
 
   if (config.darwinbox.enabled) {

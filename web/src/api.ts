@@ -193,11 +193,24 @@ function normalizeAudit(raw: unknown): AuditEntry {
 
 export const api = {
   // auth
-  me: () => request<{ user: SessionUser }>('GET', '/api/auth/me'),
+  me: () => request<{ user: SessionUser; mustChangePassword?: boolean }>('GET', '/api/auth/me'),
+  login: (email: string, password: string) =>
+    request<{ ok: boolean; user: SessionUser; mustChangePassword?: boolean }>('POST', '/api/auth/login', {
+      email,
+      password,
+    }),
+  changePassword: (newPassword: string, oldPassword?: string) =>
+    request<{ ok: boolean; user: SessionUser }>('POST', '/api/auth/change-password', {
+      newPassword,
+      oldPassword,
+    }),
   requestOtp: (email: string) =>
     request<{ ok: boolean; devCode?: string }>('POST', '/api/auth/request-otp', { email }),
   verifyOtp: (email: string, code: string) =>
-    request<{ ok: boolean; user: SessionUser }>('POST', '/api/auth/verify-otp', { email, code }),
+    request<{ ok: boolean; user: SessionUser; mustChangePassword?: boolean }>('POST', '/api/auth/verify-otp', {
+      email,
+      code,
+    }),
   logout: () => request<{ ok: boolean }>('POST', '/api/auth/logout'),
 
   // feed

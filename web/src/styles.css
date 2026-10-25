@@ -2,13 +2,13 @@
    Gainwell CHAMP · Spot Recognition Console
    Premium Design System v3.0 — Darwinbox-Inspired
    
-   Typography:  Lato (all weights)
+   Typography:  Roboto (all weights)
    Palette:     Dark Navy + Blue accent + Orange highlights
    Effects:     Clean surfaces, micro-animations, elevated cards
    Surfaces:    Login, Feed, People, Profile, Analytics, Admin, Simulator, Board
    ──────────────────────────────────────────────────────────────────────────── */
 
-@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Design Tokens
@@ -76,8 +76,8 @@
   --duration-slow: 400ms;
 
   /* Type */
-  --font-heading: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-body:    'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-heading: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-body:    'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -2446,93 +2446,162 @@ h3 { font-size: 15px; font-weight: 700; }
 
 .board {
   min-height: 100vh;
-  background: var(--bg);
+  background: #f8fafc;
   color: var(--ink);
   display: flex;
   flex-direction: column;
 }
+
 .board-header {
-  background: rgba(255,255,255,.9);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--line);
-  padding: 20px 36px;
+  background: #ffffff;
+  border-bottom: 1px solid #eef2f6;
+  padding: 18px 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
-.board-title { display: flex; align-items: center; gap: 14px; }
-.board-title h1 {
-  font-size: 28px;
-  color: var(--green-900);
+
+.board-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.board-emblem-wrap {
+  width: 76px;
+  height: 52px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.board-emblem-img {
+  height: 52px;
+  width: auto;
+  max-width: none;
+  object-fit: cover;
+  object-position: left center;
+}
+
+.board-brand-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.board-brand-champ {
+  font-size: 38px;
+  font-weight: 800;
+  color: #112d4e;
+  line-height: 1;
+  letter-spacing: 0.02em;
   font-family: var(--font-heading);
 }
+
+.board-brand-tagline {
+  font-size: 18px;
+  font-weight: 600;
+  color: #d9383a;
+  margin-top: 5px;
+  line-height: 1.1;
+  font-family: var(--font-heading);
+}
+
 .board-clock {
-  font-size: 22px;
-  font-weight: 800;
-  color: var(--green-600);
-  font-family: 'SF Mono', 'Cascadia Code', monospace;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-family: var(--font-heading);
+}
+
+.board-time {
+  font-size: 32px;
+  font-weight: 500;
+  color: #1e293b;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+}
+
+.board-date {
+  font-size: 14px;
+  color: #64748b;
+  margin-top: 4px;
+  font-weight: 400;
 }
 
 .board-main {
   flex: 1;
   padding: 24px 36px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 16px;
+  display: flex;
+  flex-direction: column;
   align-content: start;
 }
 
-.board .feed-card {
-  background: var(--surface);
-  border-color: var(--line);
-  color: var(--ink);
-  backdrop-filter: blur(4px);
-}
-.board .who-names { color: var(--ink); }
-.board .who-names .person-name { color: var(--green-700); }
-.board .feed-reason-box {
-  background: var(--grid);
-  border-left-color: var(--green-400);
-}
-.board .feed-reason { color: var(--ink); }
-.board .feed-footer { color: var(--muted); }
-
-.board-footer {
-  padding: 14px 36px;
-  border-top: 1px solid var(--line);
-  text-align: center;
-  font-size: 12px;
-  color: var(--muted);
+.board-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+  width: 100%;
 }
 
-/* Board brand / header */
-.board-brand {
+.board-empty {
+  flex: 1;
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--ink);
+  align-items: center;
+  justify-content: center;
+  min-height: 420px;
+  color: #475569;
+  font-weight: 600;
+  font-size: 17.5px;
+  text-align: center;
   font-family: var(--font-heading);
 }
-.board-brand-accent { color: var(--green-900); font-weight: 900; font-size: 22px; }
-.board-brand-sub { font-size: 12px; color: var(--muted); font-weight: 600; }
-.board-time { font-size: 26px; letter-spacing: .05em; }
-.board-date { font-size: 11px; color: var(--muted); margin-top: 2px; font-weight: 600; }
+
+.board-footer {
+  padding: 22px 36px;
+  text-align: center;
+  font-size: 13.5px;
+  color: #64748b;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.board-cta {
+  font-size: 14.5px;
+  color: #475569;
+  font-weight: 500;
+}
+
+.board-cta .wa {
+  color: #112d4e;
+  font-weight: 800;
+  font-family: var(--font-heading);
+}
+
+.board-subcta {
+  font-size: 13px;
+  color: #64748b;
+}
 
 /* Board Cards */
 .board-card {
-  background: var(--surface);
+  background: #ffffff;
   border: 1px solid var(--line);
   border-left: 4px solid;
   border-radius: var(--radius);
   padding: 20px 24px;
   transition: all .5s ease;
-  box-shadow: var(--shadow-xs);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 .board-card.highlight {
-  background: var(--surface);
-  box-shadow: var(--shadow-card-hover);
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   transform: scale(1.01);
 }
 
@@ -2570,26 +2639,6 @@ h3 { font-size: 15px; font-weight: 700; }
   border-radius: var(--radius-full);
   color: var(--green-800);
   font-weight: 700;
-  font-family: var(--font-heading);
-}
-.board-empty {
-  grid-column: 1 / -1;
-  display: grid;
-  place-items: center;
-  height: 300px;
-  color: var(--muted);
-  font-weight: 600;
-  font-size: 16px;
-  text-align: center;
-}
-.board-cta {
-  font-weight: 700;
-  color: var(--muted);
-  margin-bottom: 4px;
-}
-.board-cta .wa {
-  color: var(--green-700);
-  font-weight: 800;
   font-family: var(--font-heading);
 }
 

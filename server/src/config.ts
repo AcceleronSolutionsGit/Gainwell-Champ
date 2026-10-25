@@ -74,7 +74,7 @@ function buildConfig() {
       provider: (str(env.EMAIL_PROVIDER, 'console')) as 'console' | 'smtp' | 'ses',
       from: str(env.EMAIL_FROM, 'no-reply@gainwellengineering.com'),
       smtp: {
-        host: str(env.SMTP_HOST, ''),
+        host: str(env.SMTP_HOST, 'smtp.office365.com'),
         port: num(env.SMTP_PORT, 587),
         user: str(env.SMTP_USER, ''),
         pass: str(env.SMTP_PASS, ''),

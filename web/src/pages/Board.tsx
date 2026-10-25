@@ -1,6 +1,6 @@
 /**
  * /board — login-free plant kiosk (FR-18).
- * Dark full-screen: IST clock header, newest recognitions in large type,
+ * IST clock header, newest recognitions in large type,
  * auto-refresh every 20 s, a gentle highlight that rotates card to card,
  * WhatsApp call-to-action footer. Honours ?site= and (when the server has
  * BOARD_TOKEN set) passes ?token= straight through to the API.
@@ -48,13 +48,17 @@ export default function Board(): React.ReactElement {
   return (
     <div className="board">
       <header className="board-header">
-        <div className="board-brand" style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
-          <img src={`${import.meta.env.BASE_URL}logo1.png`} alt="Gainwell Logo" style={{ height: '64px', width: 'auto', objectFit: 'contain' }} />
-          <div>
-            <div><span className="board-brand-accent">CHAMP</span> Wall of Recognition</div>
-            {site && (
-              <span className="board-brand-sub">{site}</span>
-            )}
+        <div className="board-brand">
+          <div className="board-emblem-wrap">
+            <img
+              src={`${import.meta.env.BASE_URL}logo1.png`}
+              alt="Gainwell Logo"
+              className="board-emblem-img"
+            />
+          </div>
+          <div className="board-brand-text">
+            <span className="board-brand-champ">CHAMP</span>
+            <span className="board-brand-tagline">Wall of Recognition</span>
           </div>
         </div>
         <div className="board-clock">
@@ -71,7 +75,11 @@ export default function Board(): React.ReactElement {
             No recognitions yet — be the first! Message CHAMP on WhatsApp.
           </div>
         ) : (
-          items.map((item, i) => <BoardCard key={item.id} item={item} highlight={i === highlight} />)
+          <div className="board-grid">
+            {items.map((item, i) => (
+              <BoardCard key={item.id} item={item} highlight={i === highlight} />
+            ))}
+          </div>
         )}
       </main>
 
@@ -79,7 +87,7 @@ export default function Board(): React.ReactElement {
         <div className="board-cta">
           Give recognition on WhatsApp — message <span className="wa">CHAMP</span>
         </div>
-        <div>Spot great work. Say it in one line. It lands here.</div>
+        <div className="board-subcta">Spot great work. Say it in one line. It lands here.</div>
       </footer>
     </div>
   )

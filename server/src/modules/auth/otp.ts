@@ -36,38 +36,7 @@ function normalizeEmail(email: string): string {
   return email.trim().toLowerCase()
 }
 
-/** "hr.admin" → "Hr Admin" — display name for console users with no directory row. */
-function nameFromLocalPart(email: string): string {
-  const local = email.split('@')[0] ?? email
-  return local
-    .split(/[._-]+/)
-    .filter(Boolean)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ')
-}
-
-/**
- * Resolve who this email is, or null when not enrolled.
- * Role: admin_users row wins (admin/committee); otherwise plain 'employee'.
- */
-async function resolveIdentity(emailRaw: string): Promise<SessionUser | null> {
-  const email = emailRaw.trim().toLowerCase()
-  const db = getDb()
-  const adminRow = (await db('admin_users').whereRaw('lower(email) = ?', [email]).first()) as
-    | { email: string; role: 'admin' | 'committee' }
-    | undefined
-  const employee = (await db('employees')
-    .whereRaw('lower(email) = ?', [email])
-    .where({ active: 1 })
-    .first()) as Employee | undefined
-  if (!adminRow && !employee) return null
-  return {
-    email,
-    employeeId: employee?.id ?? null,
-    name: employee?.name ?? nameFromLocalPart(email),
-    role: adminRow?.role ?? 'employee',
-  }
-}
+import { nameFromLocalPart, resolveIdentity } from './identity'
 
 /**
  * Issue a fresh OTP for the email (invalidating any previous unconsumed ones)

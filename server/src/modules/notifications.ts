@@ -63,20 +63,36 @@ export async function notifyRecipient(recognition: Recognition): Promise<void> {
   // ── Meta Cloud API (real WhatsApp delivery) ─────────────────────────────
   if (config.whatsapp.provider === 'meta') {
     try {
-      // TODO: Revert to 'recognition_received' once the custom template is
-      // approved in Meta Business Manager. Using 'hello_world' for now so we
-      // can verify the Meta Cloud API integration end-to-end.
-      // Original:
-      // await getWhatsAppProvider().sendTemplate(recipient.mobile, 'recognition_received', [
-      //   giver.name,
-      //   behaviour.name,
-      //   recognition.reason_text,
-      // ])
       await getWhatsAppProvider().sendTemplate(recipient.mobile, 'hello_world' as any, [])
     } catch (err) {
-      // The recognition itself already succeeded — never fail the giver's
-      // conversation because the notification could not be delivered.
       console.error(`[notify] recognition_received template to ${recipient.mobile} failed:`, err)
+    }
+  }
+
+  // ── Email notification (exact CHAMP template with CC to manager & giver) ──
+  if (recipient.email) {
+    let managerEmail: string | null = null
+    if (recipient.manager_id) {
+      const manager = (await db('employees').where({ id: recipient.manager_id }).first()) as
+        | Employee
+        | undefined
+      if (manager?.email) {
+        managerEmail = manager.email
+      }
+    }
+
+    try {
+      const { sendRecognitionEmail } = await import('./auth/mailer')
+      await sendRecognitionEmail({
+        recipientEmail: recipient.email,
+        recipientName: recipient.name,
+        giverName: giver.name,
+        giverEmail: giver.email,
+        managerEmail,
+        behaviourName: behaviour.name,
+      })
+    } catch (emailErr) {
+      console.error(`[notify] recognition email to ${recipient.email} failed:`, emailErr)
     }
   }
 }

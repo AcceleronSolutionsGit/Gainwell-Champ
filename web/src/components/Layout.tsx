@@ -8,11 +8,13 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { hasRole, useAuth } from '../auth'
 import { Button } from './ui'
 import GiveRecognitionModal from './GiveRecognitionModal'
+import ChangePasswordModal from './ChangePasswordModal'
 
 export default function Layout(): React.ReactElement {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [giveModalOpen, setGiveModalOpen] = useState(false)
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
@@ -121,6 +123,17 @@ export default function Layout(): React.ReactElement {
                       <div className="user-menu-email">{user.email}</div>
                       <span className="user-menu-role">{user.role}</span>
                     </div>
+                    <button
+                      type="button"
+                      className="user-menu-signout"
+                      style={{ borderBottom: '1px solid var(--line)', borderRadius: 0 }}
+                      onClick={() => {
+                        setUserMenuOpen(false)
+                        setChangePasswordOpen(true)
+                      }}
+                    >
+                      🔑 Change Password
+                    </button>
                     <button type="button" className="user-menu-signout" onClick={() => void onLogout()}>
                       🚪 Sign Out
                     </button>
@@ -143,6 +156,10 @@ export default function Layout(): React.ReactElement {
             window.dispatchEvent(new CustomEvent('champ:recognition-created'))
           }}
         />
+      )}
+
+      {changePasswordOpen && (
+        <ChangePasswordModal onClose={() => setChangePasswordOpen(false)} />
       )}
     </>
   )

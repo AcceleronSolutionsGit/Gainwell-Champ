@@ -11,9 +11,11 @@ import type { Role, SessionUser } from './types'
 
 interface AuthContextValue {
   user: SessionUser | null
+  mustChangePassword: boolean
   /** True until the initial /me probe settles — gates render, not routes. */
   initializing: boolean
-  setUser: (user: SessionUser | null) => void
+  setUser: (user: SessionUser | null, mustChangePassword?: boolean) => void
+  setMustChangePassword: (must: boolean) => void
   logout: () => Promise<void>
 }
 
@@ -33,15 +35,26 @@ export function hasRole(user: SessionUser | null, need: Role): boolean {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }): React.ReactElement {
-  const [user, setUser] = useState<SessionUser | null>(null)
+  const [user, setUserState] = useState<SessionUser | null>(null)
+  const [mustChangePassword, setMustChangePassword] = useState(false)
   const [initializing, setInitializing] = useState(true)
+
+  const setUser = useCallback((newUser: SessionUser | null, mustChange?: boolean) => {
+    setUserState(newUser)
+    if (mustChange !== undefined) {
+      setMustChangePassword(mustChange)
+    }
+  }, [])
 
   useEffect(() => {
     let cancelled = false
     api
       .me()
       .then((res) => {
-        if (!cancelled) setUser(res.user)
+        if (!cancelled) {
+          setUserState(res.user)
+          setMustChangePassword(Boolean(res.mustChangePassword))
+        }
       })
       .catch(() => {
         /* not signed in — expected */
@@ -57,7 +70,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
   // Session idle/absolute expiry mid-use → drop the user so route guards
   // bounce to /login on the next render.
   useEffect(() => {
-    setUnauthorizedHandler(() => setUser(null))
+    setUnauthorizedHandler(() => {
+      setUserState(null)
+      setMustChangePassword(false)
+    })
     return () => setUnauthorizedHandler(null)
   }, [])
 
@@ -68,22 +84,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
       // Cookie may already be expired; clearing local state is what matters.
       if (!(err instanceof ApiError)) throw err
     }
-    setUser(null)
+    setUserState(null)
+    setMustChangePassword(false)
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, initializing, setUser, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        mustChangePassword,
+        initializing,
+        setUser,
+        setMustChangePassword,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   )
 }
 
-/** Redirects to /login (remembering where we came from) when signed out. */
+/** Redirects to /login (remembering where we came from) when signed out or must change password. */
 export function RequireAuth({ children }: { children: React.ReactElement }): React.ReactElement {
-  const { user, initializing } = useAuth()
+  const { user, mustChangePassword, initializing } = useAuth()
   const location = useLocation()
   if (initializing) return <div className="page-splash">Loading…</div>
   if (!user) return <Navigate to="/login" state={{ from: location.pathname + location.search }} replace />
+  if (mustChangePassword) {
+    return <Navigate to="/login" state={{ from: location.pathname + location.search, changePassword: true }} replace />
+  }
   return children
 }
 
@@ -95,10 +124,13 @@ export function RequireRole({
   role: Role
   children: React.ReactElement
 }): React.ReactElement {
-  const { user, initializing } = useAuth()
+  const { user, mustChangePassword, initializing } = useAuth()
   const location = useLocation()
   if (initializing) return <div className="page-splash">Loading…</div>
   if (!user) return <Navigate to="/login" state={{ from: location.pathname + location.search }} replace />
+  if (mustChangePassword) {
+    return <Navigate to="/login" state={{ from: location.pathname + location.search, changePassword: true }} replace />
+  }
   if (!hasRole(user, role)) return <Navigate to="/" replace />
   return children
 }
