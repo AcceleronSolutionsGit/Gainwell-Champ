@@ -16,7 +16,7 @@ function getSmtpTransporter(): Transporter {
     const { host, port, user, pass, secure } = config.email.smtp
     const smtpHost = host || 'smtp.office365.com'
     const smtpPort = port || 587
-    
+
     smtpTransporter = nodemailer.createTransport({
       host: smtpHost,
       port: smtpPort,
@@ -129,7 +129,6 @@ export async function sendOtpEmail(email: string, code: string): Promise<void> {
 
 /**
  * Recognition notification email sent to the recipient, CCing reporting manager and sender.
- * Matches the official CHAMP notification template:
  *
  * Subject: Notification from Gainwell Engineering CHAMP
  *
@@ -183,9 +182,6 @@ export async function sendRecognitionEmail(params: {
     p {
       margin: 0 0 16px 0;
       font-size: 15px;
-    }
-    .strong {
-      font-weight: 700;
     }
     .signature {
       margin-top: 24px;

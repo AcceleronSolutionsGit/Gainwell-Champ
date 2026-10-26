@@ -9,7 +9,8 @@
     "build": "tsc -p tsconfig.json",
     "start": "NODE_ENV=production node dist/index.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "seed:reset": "tsx src/db/seed/reset.ts"
+    "seed:reset": "tsx src/db/seed/reset.ts",
+    "test:mail": "tsx src/test-mail.ts"
   },
   "dependencies": {
     "better-sqlite3": "^12.2.0",
