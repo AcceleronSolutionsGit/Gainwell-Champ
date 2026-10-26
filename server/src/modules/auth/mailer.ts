@@ -23,7 +23,6 @@ function getSmtpTransporter(): Transporter {
       secure: secure ?? false, // false = STARTTLS upgrade on 587 (Office 365 default)
       auth: user ? { user, pass } : undefined,
       tls: {
-        ciphers: 'SSLv3',
         rejectUnauthorized: false,
       },
     })

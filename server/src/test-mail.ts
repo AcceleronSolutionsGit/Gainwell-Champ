@@ -8,7 +8,7 @@ async function main() {
   console.log(`[test-mail] SMTP User: ${config.email.smtp.user || '(none)'}`)
   console.log(`[test-mail] Secure:    ${config.email.smtp.secure}`)
 
-  const targetEmail = process.argv[2] || 'sabarnik.lahiri@acceleronsolutions.io'
+  const targetEmail = process.argv[2] || config.email.from || 'sabarnik.lahiri@acceleronsolutions.io'
   console.log(`\n[test-mail] Dispatching test recognition email to ${targetEmail}...`)
 
   await sendRecognitionEmail({
