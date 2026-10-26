@@ -2450,27 +2450,29 @@ h3 { font-size: 15px; font-weight: 700; }
   color: var(--ink);
   display: flex;
   flex-direction: column;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .board-header {
   background: #ffffff;
-  border-bottom: 1px solid #eef2f6;
-  padding: 18px 40px;
+  border-bottom: 1px solid #edf2f7;
+  padding: 20px 48px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .board-brand {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
 }
 
 .board-emblem-wrap {
-  width: 76px;
-  height: 52px;
+  width: 78px;
+  height: 54px;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -2478,7 +2480,7 @@ h3 { font-size: 15px; font-weight: 700; }
 }
 
 .board-emblem-img {
-  height: 52px;
+  height: 54px;
   width: auto;
   max-width: none;
   object-fit: cover;
@@ -2492,21 +2494,21 @@ h3 { font-size: 15px; font-weight: 700; }
 }
 
 .board-brand-champ {
-  font-size: 38px;
-  font-weight: 800;
-  color: #112d4e;
+  font-size: 40px;
+  font-weight: 900;
+  color: #0b2848;
   line-height: 1;
   letter-spacing: 0.02em;
-  font-family: var(--font-heading);
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
 }
 
 .board-brand-tagline {
-  font-size: 18px;
+  font-size: 18.5px;
   font-weight: 600;
-  color: #d9383a;
+  color: #d32f2f;
   margin-top: 5px;
   line-height: 1.1;
-  font-family: var(--font-heading);
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
 }
 
 .board-clock {
@@ -2514,12 +2516,12 @@ h3 { font-size: 15px; font-weight: 700; }
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  font-family: var(--font-heading);
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
 }
 
 .board-time {
-  font-size: 32px;
-  font-weight: 500;
+  font-size: 34px;
+  font-weight: 400;
   color: #1e293b;
   line-height: 1.1;
   letter-spacing: 0.02em;
@@ -2527,14 +2529,14 @@ h3 { font-size: 15px; font-weight: 700; }
 
 .board-date {
   font-size: 14px;
-  color: #64748b;
+  color: #4b5563;
   margin-top: 4px;
   font-weight: 400;
 }
 
 .board-main {
   flex: 1;
-  padding: 24px 36px;
+  padding: 24px 48px;
   display: flex;
   flex-direction: column;
   align-content: start;
@@ -2552,41 +2554,46 @@ h3 { font-size: 15px; font-weight: 700; }
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 420px;
+  min-height: 480px;
   color: #475569;
   font-weight: 600;
-  font-size: 17.5px;
+  font-size: 18.5px;
   text-align: center;
-  font-family: var(--font-heading);
+  letter-spacing: -0.01em;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
 }
 
 .board-footer {
-  padding: 22px 36px;
+  padding: 24px 48px;
   text-align: center;
-  font-size: 13.5px;
+  font-size: 14px;
   color: #64748b;
   background: transparent;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  border-top: none;
 }
 
 .board-cta {
   font-size: 14.5px;
   color: #475569;
   font-weight: 500;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
 }
 
 .board-cta .wa {
-  color: #112d4e;
+  color: #0b2848;
   font-weight: 800;
-  font-family: var(--font-heading);
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
 }
 
 .board-subcta {
   font-size: 13px;
-  color: #64748b;
+  color: #94a3b8;
+  font-weight: 400;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
 }
 
 /* Board Cards */

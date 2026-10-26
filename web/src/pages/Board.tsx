@@ -70,7 +70,7 @@ export default function Board(): React.ReactElement {
       <main className="board-main">
         {feed.error ? (
           <div className="board-empty">Can't reach the CHAMP feed right now — retrying…</div>
-        ) : items.length === 0 && !feed.loading ? (
+        ) : items.length === 0 ? (
           <div className="board-empty">
             No recognitions yet — be the first! Message CHAMP on WhatsApp.
           </div>
