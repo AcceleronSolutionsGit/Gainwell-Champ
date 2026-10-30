@@ -21,6 +21,7 @@ function getSmtpTransporter(): Transporter {
       host: smtpHost,
       port: smtpPort,
       secure: secure ?? false, // false = STARTTLS upgrade on 587 (Office 365 default)
+      requireTLS: (secure ?? false) ? false : smtpPort === 587,
       auth: user ? { user, pass } : undefined,
       tls: {
         rejectUnauthorized: false,
