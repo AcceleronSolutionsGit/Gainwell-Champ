@@ -143,7 +143,7 @@ async function fetchAllEmployees(headers: Record<string, string>): Promise<DbxEm
   const allEmployees = parsed.employee_data ?? []
   return allEmployees.filter(emp => {
     const code = (emp.group_company_code ?? '').trim().toUpperCase()
-    return code === '3000' || code === 'GEPL'
+    return code === '3000' || code === '4000' || code === 'GEPL' || code === 'GESPL'
   })
 }
 
